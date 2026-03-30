@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Learning Realm</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- STUDENT LOGIN SCREEN -->
+    <div id="login-screen" class="screen">
+        <h1>Welcome to the Learning Realm</h1>
+
+        <div class="login-box">
+            <label>Class Code</label>
+            <input id="classCode" type="text" placeholder="Example: 6A-ELA">
+
+            <label>Student Name</label>
+            <input id="studentName" type="text" placeholder="Example: JamieT">
+            <label>Student Password</label>
+<input id="studentPassword" type="password" placeholder="Enter password">
+
+            <button onclick="enterWorld()">Enter World</button>
+            <button onclick="showTeacherLogin()">Teacher Login</button>
+
+            <p id="login-error"></p>
+        </div>
+    </div>
+
+    <!-- TEACHER LOGIN SCREEN -->
+    <div id="teacher-login-screen" class="screen hidden">
+        <h1>Teacher Access</h1>
+
+        <div class="login-box">
+            <label>Class Code</label>
+            <input id="teacherClassCode" type="text" placeholder="Example: 6A-ELA">
+
+            <label>Teacher Name</label>
+            <input id="teacherName" type="text" placeholder="Example: HENRYA">
+
+            <label>Passcode</label>
+            <input id="teacherPasscode" type="password" placeholder="Enter passcode">
+
+            <button onclick="enterTeacherDashboard()">Enter Dashboard</button>
+            <button onclick="showStudentLogin()">Back to Student Login</button>
+
+            <p id="teacher-login-error"></p>
+        </div>
+    </div>
+
+    <!-- HUB DASHBOARD -->
+    <div id="hub-screen" class="screen hidden">
+        <div class="top-bar">
+            <div id="student-info">
+                Name: <span id="displayName"></span> |
+                Class: <span id="displayClass"></span>
+            </div>
+
+            <div id="knowledge-display">
+                Knowledge: <span id="knowledgeCount">0</span>
+            </div>
+
+            <div>
+    <button onclick="studentLogout()">Log Out</button>
+</div>
+        </div>
+
+        <div class="main-panel">
+            <h2>Learning Hub</h2>
+
+            <div class="panel-grid">
+                <div class="panel">
+                    <h3>Active Quest</h3>
+                    <p id="activeQuestTitle">No quest selected</p>
+                    <p id="activeQuestStatus">Status: --</p>
+                    <button onclick="openQuestScreen()">Quests</button>
+                </div>
+
+                <div class="panel">
+                    <h3>Your Packs</h3>
+                    <p>Basic Pack x<span id="basicPackCount">0</span></p>
+                    <p>Basic Pack Cost: <span id="basicPackCost">150</span> Knowledge</p>
+                    <button onclick="buyBasicPack()">Buy Basic Pack</button>
+                    <button onclick="openPack()">Open Pack</button>
+                    <p id="pack-message"></p>
+                </div>
+
+                <div class="panel">
+                    <h3>Collection</h3>
+                    <p>Cards Collected: <span id="cardCount">0</span>/90</p>
+                    <button onclick="openCollection()">View Collection</button>
+                </div>
+
+                <div class="panel">
+                    <h3>Profile</h3>
+                    <button onclick="openProfile()">View Profile</button>
+                </div>
+
+                <div class="panel hidden" id="tester-panel">
+                    <h3>Testing Tools</h3>
+                    <button onclick="addTestPack()">Add Pack</button>
+                    <button onclick="addTestKnowledge()">+500 Knowledge</button>
+                    <button onclick="resetKnowledge()">Reset Knowledge</button>
+                    <button onclick="clearCollection()">Clear Collection</button>
+                    <button onclick="addSpecificTestCard()">Add Mesala-Camala</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QUEST SCREEN -->
+    <div id="quest-screen" class="screen hidden">
+        <h2>Quest Board</h2>
+
+        <div class="panel-grid">
+            <div class="panel">
+                <h3>Available Quests</h3>
+                <div id="quest-list"></div>
+            </div>
+
+            <div class="panel">
+                <h3 id="selectedQuestTitle">Select a Quest</h3>
+                <p id="selectedQuestInstructions">Quest instructions will appear here.</p>
+                <p id="selectedQuestReward">Reward: --</p>
+                <p id="selectedQuestStatus">Status: --</p>
+
+                <textarea id="questSubmissionBox" rows="10" cols="35" placeholder="Type your submission here..."></textarea>
+                <br><br>
+                <button id="submitQuestButton" onclick="submitQuestForReview()">Submit for Review</button>
+                <button id="claimRewardButton" class="hidden" onclick="claimQuestReward()">Receive Reward</button>
+                <p id="questSubmissionMessage"></p>
+            </div>
+        </div>
+
+        <button onclick="returnHub()">Back to Hub</button>
+    </div>
+
+    <!-- PACK OPENING SCREEN -->
+    <div id="pack-screen" class="screen hidden">
+        <h2>Opening Pack</h2>
+
+        <div id="pack-area">
+            <div id="pack-visual" class="pack-visual">
+                BASIC PACK
+            </div>
+
+            <button id="open-pack-button" onclick="revealCards()">Open Pack</button>
+
+            <div id="card-results"></div>
+        </div>
+
+        <button onclick="returnHub()">Back to Hub</button>
+    </div>
+
+    <!-- COLLECTION SCREEN -->
+    <div id="collection-screen" class="screen hidden">
+        <h2>Collection Book</h2>
+
+        <div id="collection-grid"></div>
+
+        <button onclick="returnHub()">Back to Hub</button>
+    </div>
+
+    <!-- PROFILE SCREEN -->
+    <div id="profile-screen" class="screen hidden">
+        <h2>Profile</h2>
+
+        <p>Name: <span id="profileName"></span></p>
+        <p>Class: <span id="profileClass"></span></p>
+        <p>Knowledge: <span id="profileKnowledge"></span></p>
+        <p>Cards Collected: <span id="profileCards"></span></p>
+
+        <button onclick="returnHub()">Back to Hub</button>
+    </div>
+
+    <!-- TEACHER DASHBOARD -->
+    <div id="teacher-dashboard-screen" class="screen hidden">
+        <div class="top-bar">
+            <div>
+                Teacher: <span id="displayTeacherName"></span> |
+                Class: <span id="displayTeacherClass"></span>
+            </div>
+            <div>
+                <button onclick="teacherLogout()">Log Out</button>
+            </div>
+        </div>
+
+        <div class="main-panel">
+            <h2>Teacher Dashboard</h2>
+
+            <div class="panel-grid">
+                <div class="panel">
+                    <h3>Pending Submissions</h3>
+                    <div id="teacher-submission-list"></div>
+                </div>
+
+                <div class="panel">
+                    <h3>Selected Submission</h3>
+                    <p>Student: <span id="teacher-selected-student">--</span></p>
+                    <p>Quest: <span id="teacher-selected-quest">--</span></p>
+                    <p>Status: <span id="teacher-selected-status">--</span></p>
+
+                    <textarea id="teacher-selected-text" rows="8" cols="30" placeholder="Submission text will appear here..." disabled></textarea>
+
+                    <br><br>
+
+                    <label for="teacher-note-box">Teacher Note</label>
+                    <br>
+                    <textarea id="teacher-note-box" rows="4" cols="30" placeholder="Optional feedback for the student..."></textarea>
+                </div>
+
+                <div class="panel">
+                    <h3>Teacher Actions</h3>
+                    <button id="approve-button" onclick="approveSelectedSubmission()">Approve</button>
+                    <button id="approve-bonus-button" onclick="approveSelectedSubmissionWithBonus()">Approve with Bonus</button>
+                    <button id="revision-button" onclick="returnSelectedSubmissionForRevision()">Return for Revision</button>
+                    <p id="teacher-action-message"></p>
+                </div>
+
+                <div class="panel">
+                    <h3>Class Roster</h3>
+
+                    <div id="teacher-roster-list"></div>
+
+                    <label for="new-student-name">Add Student</label>
+                    <br>
+                    <input id="new-student-name" type="text" placeholder="Example: JamieT">
+                    <br><br>
+
+                    <label for="new-student-password">Student Password</label>
+<br>
+<input id="new-student-password" type="password" placeholder="Set a password">
+<br><br>
+                    <button onclick="addStudentToRoster()">Add Student</button>
+
+                    <p id="teacher-roster-message"></p>
+                </div>
+
+                <div class="panel">
+                    <h3>Quest Manager</h3>
+
+                    <label for="teacher-quest-title">Quest Title</label>
+                    <br>
+                    <input id="teacher-quest-title" type="text" placeholder="Example: Vocabulary Challenge">
+                    <br><br>
+
+                    <label for="teacher-quest-instructions">Instructions</label>
+                    <br>
+                    <textarea id="teacher-quest-instructions" rows="5" cols="30" placeholder="Write the quest instructions here."></textarea>
+                    <br><br>
+
+                    <label for="teacher-quest-knowledge">Knowledge Reward</label>
+                    <br>
+                    <input id="teacher-quest-knowledge" type="number" min="0" value="100">
+                    <br><br>
+
+                    <label for="teacher-quest-packs">Basic Pack Reward</label>
+                    <br>
+                    <input id="teacher-quest-packs" type="number" min="0" value="1">
+                    <br><br>
+
+                    <label for="teacher-quest-bonus-knowledge">Bonus Knowledge Reward</label>
+<br>
+<input id="teacher-quest-bonus-knowledge" type="number" min="0" value="0">
+<br><br>
+
+<label for="teacher-quest-bonus-packs">Bonus Basic Pack Reward</label>
+<br>
+<input id="teacher-quest-bonus-packs" type="number" min="0" value="0">
+<br><br>
+
+                    <button onclick="createTeacherQuest()">Create Quest</button>
+
+                    <hr>
+
+                    <h4>Current Class Quests</h4>
+                    <div id="teacher-quest-list"></div>
+
+                    <p id="teacher-quest-message"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="whitelist.js"></script>
+    <script src="teachers.js"></script>
+    <script src="cards.js"></script>
+    <script src="packs.js"></script>
+ <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
