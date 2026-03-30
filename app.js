@@ -1158,76 +1158,215 @@ function updateHubUI() {
 // =========================
 // OPTIONAL STUBS
 // =========================
+function updateHubUI() {
+    if (!currentStudent) return;
+
+    getEl("displayName").textContent = currentStudent.name;
+    getEl("displayClass").textContent = currentStudent.classCode;
+    getEl("knowledgeCount").textContent = currentStudent.knowledge;
+    getEl("basicPackCount").textContent = currentStudent.packs.basic;
+    getEl("cardCount").textContent = (currentStudent.ownedCards || []).length;
+}
+
 function buyBasicPack() {
     if (!currentStudent) return;
 
-    if (currentStudent.knowledge < BASIC_PACK_COST) {
-        getEl("pack-message").textContent = "Not enough Knowledge!";
+    const messageEl = getEl("pack-message");
+    if (messageEl) messageEl.textContent = "";
+
+    if ((currentStudent.knowledge || 0) < BASIC_PACK_COST) {
+        if (messageEl) messageEl.textContent = "Not enough Knowledge.";
         return;
     }
 
     currentStudent.knowledge -= BASIC_PACK_COST;
-    currentStudent.packs.basic += 1;
+    currentStudent.packs.basic = (currentStudent.packs.basic || 0) + 1;
 
-    updateHubUI();
     saveStudentData();
+    updateHubUI();
 
-    getEl("pack-message").textContent = "Bought 1 Basic Pack!";
+    if (messageEl) messageEl.textContent = "You bought 1 Basic Pack!";
 }
+
 function openPack() {
     if (!currentStudent) return;
 
-    if (currentStudent.packs.basic <= 0) {
-        getEl("pack-message").textContent = "No packs available!";
+    const messageEl = getEl("pack-message");
+    if (messageEl) messageEl.textContent = "";
+
+    if ((currentStudent.packs.basic || 0) <= 0) {
+        if (messageEl) messageEl.textContent = "You do not have any Basic Packs.";
         return;
     }
 
     currentStudent.packs.basic -= 1;
-    updateHubUI();
     saveStudentData();
+    updateHubUI();
+
+    const results = getEl("card-results");
+    if (results) results.innerHTML = "";
+
+    const openBtn = getEl("open-pack-button");
+    if (openBtn) openBtn.disabled = false;
 
     showScreen("pack-screen");
 }
-function revealCards() {
-    if (!currentStudent) return;
 
-    const results = getEl("card-results");
-    results.innerHTML = "";
-
-    const pack = PACKS.basic;
-
-    for (let i = 0; i < pack.cardsPerPack; i++) {
-        const rarity = rollRarity(pack.odds);
-
-        const possibleCards = CARDS.filter(c => c.rarity === rarity);
-        const card = possibleCards[Math.floor(Math.random() * possibleCards.length)];
-
-        if (!currentStudent.ownedCards.includes(card.id)) {
-            currentStudent.ownedCards.push(card.id);
-        }
-
-        const div = document.createElement("div");
-        div.textContent = `${card.name} (${card.rarity})`;
-        results.appendChild(div);
-    }
-
-    saveStudentData();
-}
 function rollRarity(odds) {
     const roll = Math.random() * 100;
-    let cumulative = 0;
+    let runningTotal = 0;
 
-    for (let rarity in odds) {
-        cumulative += odds[rarity];
-        if (roll <= cumulative) return rarity;
+    for (const rarity in odds) {
+        runningTotal += odds[rarity];
+        if (roll <= runningTotal) {
+            return rarity;
+        }
     }
 
     return "Common";
 }
-function openCollection() {}
-function openProfile() {}
-function addTestPack() {}
-function addTestKnowledge() {}
-function resetKnowledge() {}
-function clearCollection() {}
-function addSpecificTestCard() {}
+
+function revealCards() {
+    if (!currentStudent) return;
+
+    const results = getEl("card-results");
+    const openBtn = getEl("open-pack-button");
+    if (!results) return;
+
+    results.innerHTML = "";
+
+    if (openBtn) openBtn.disabled = true;
+
+    const pulledCards = [];
+
+    for (let i = 0; i < PACKS.basic.cardsPerPack; i++) {
+        const rarity = rollRarity(PACKS.basic.odds);
+        const matchingCards = CARDS.filter(card => card.rarity === rarity);
+
+        if (matchingCards.length === 0) continue;
+
+        const card = matchingCards[Math.floor(Math.random() * matchingCards.length)];
+        pulledCards.push(card);
+
+        if (!currentStudent.ownedCards.includes(card.id)) {
+            currentStudent.ownedCards.push(card.id);
+        }
+    }
+
+    pulledCards.forEach(card => {
+        const cardEl = document.createElement("div");
+        cardEl.className = `reveal-card`;
+
+        cardEl.innerHTML = `
+            <div class="reveal-card-inner">
+                <div class="reveal-card-front">
+                    ?
+                </div>
+                <div class="reveal-card-back rarity-${card.rarity}">
+                    <div class="card-name">${card.name}</div>
+                    <div class="card-rarity">${card.rarity}</div>
+                    <div class="card-id">${card.id}</div>
+                </div>
+            </div>
+        `;
+
+        cardEl.addEventListener("click", () => {
+            cardEl.classList.toggle("flipped");
+        });
+
+        results.appendChild(cardEl);
+    });
+
+    const instructions = document.createElement("p");
+    instructions.className = "reveal-instructions";
+    instructions.textContent = "Click each card to flip it.";
+    results.appendChild(instructions);
+
+    saveStudentData();
+    updateHubUI();
+}
+
+function openCollection() {
+    if (!currentStudent) return;
+
+    const grid = getEl("collection-grid");
+    if (!grid) return;
+
+    grid.innerHTML = "";
+
+    CARDS.forEach(card => {
+        const slot = document.createElement("div");
+        slot.className = "card-slot";
+
+        const owned = currentStudent.ownedCards.includes(card.id);
+
+        if (owned) {
+            slot.innerHTML = `
+                <div>
+                    <strong>${card.name}</strong><br>
+                    <small>${card.rarity}</small><br>
+                    <small>${card.id}</small>
+                </div>
+            `;
+        } else {
+            slot.innerHTML = `
+                <div>
+                    <strong>???</strong><br>
+                    <small>Not Collected</small>
+                </div>
+            `;
+        }
+
+        grid.appendChild(slot);
+    });
+
+    showScreen("collection-screen");
+}
+
+function openProfile() {
+    if (!currentStudent) return;
+
+    getEl("profileName").textContent = currentStudent.name;
+    getEl("profileClass").textContent = currentStudent.classCode;
+    getEl("profileKnowledge").textContent = currentStudent.knowledge;
+    getEl("profileCards").textContent = (currentStudent.ownedCards || []).length;
+
+    showScreen("profile-screen");
+}
+
+function addTestPack() {
+    if (!currentStudent) return;
+    currentStudent.packs.basic = (currentStudent.packs.basic || 0) + 1;
+    saveStudentData();
+    updateHubUI();
+}
+
+function addTestKnowledge() {
+    if (!currentStudent) return;
+    currentStudent.knowledge = (currentStudent.knowledge || 0) + 500;
+    saveStudentData();
+    updateHubUI();
+}
+
+function resetKnowledge() {
+    if (!currentStudent) return;
+    currentStudent.knowledge = 0;
+    saveStudentData();
+    updateHubUI();
+}
+
+function clearCollection() {
+    if (!currentStudent) return;
+    currentStudent.ownedCards = [];
+    saveStudentData();
+    updateHubUI();
+}
+
+function addSpecificTestCard() {
+    if (!currentStudent) return;
+    if (!currentStudent.ownedCards.includes("P1-01")) {
+        currentStudent.ownedCards.push("P1-01");
+    }
+    saveStudentData();
+    updateHubUI();
+}
