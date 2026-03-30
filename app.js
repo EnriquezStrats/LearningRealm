@@ -126,7 +126,6 @@ async function studentLogout() {
 
     showScreen("login-screen");
 }
-
 function teacherLogout() {
     currentTeacher = null;
     selectedTeacherSubmission = null;
