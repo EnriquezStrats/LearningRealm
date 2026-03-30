@@ -72,24 +72,26 @@ async function enterWorld() {
         .single();
 
     if (classError || !classRow) {
+        console.error("Class lookup error:", classError);
         getEl("login-error").textContent = "Class not found.";
         return;
     }
 
     const { data: studentRow, error: studentError } = await supabaseClient
         .from("students")
-        .select("id, student_name, password_hash, knowledge, basic_packs")
+        .select("id, student_name, knowledge, basic_packs, password_hash")
         .eq("class_id", classRow.id)
         .eq("student_name", studentName)
         .single();
 
     if (studentError || !studentRow) {
+        console.error("Student lookup error:", studentError);
         getEl("login-error").textContent = "Student not found.";
         return;
     }
 
-    if ((studentRow.password_hash || "").trim() !== studentPassword.trim()) {
-        getEl("login-error").textContent = "Incorrect password.";
+    if (studentRow.password_hash !== studentPassword) {
+        getEl("login-error").textContent = "Incorrect login.";
         return;
     }
 
@@ -100,7 +102,7 @@ async function enterWorld() {
         knowledge: studentRow.knowledge || 0,
         packs: { basic: studentRow.basic_packs || 0 },
         ownedCards: [],
-        questSubmissions: loadStudentSubmissions(classRow.class_code, studentRow.student_name)
+        questSubmissions: await loadStudentSubmissionsFromSupabase()
     };
 
     updateHubUI();
