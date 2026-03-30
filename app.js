@@ -139,12 +139,27 @@ async function enterTeacherDashboard() {
     const teacherName = getEl("teacherName").value.trim().toUpperCase();
     const passcode = getEl("teacherPasscode").value.trim();
 
-    getEl("teacher-login-error").textContent = "";
+    const errorEl = getEl("teacher-login-error");
+    errorEl.textContent = "";
+
+    console.log("Teacher login attempt:", { classCode, teacherName, passcode });
+    console.log("CLASS_TEACHERS:", CLASS_TEACHERS);
 
     const teacher = CLASS_TEACHERS[classCode];
+    console.log("Matched teacher record:", teacher);
 
-    if (!teacher || teacher.teacherName !== teacherName || teacher.passcode !== passcode) {
-        getEl("teacher-login-error").textContent = "Invalid teacher login.";
+    if (!teacher) {
+        errorEl.textContent = `No teacher record found for class code: ${classCode}`;
+        return;
+    }
+
+    if (teacher.teacherName !== teacherName) {
+        errorEl.textContent = `Teacher name mismatch. Expected ${teacher.teacherName}, got ${teacherName}`;
+        return;
+    }
+
+    if (teacher.passcode !== passcode) {
+        errorEl.textContent = `Passcode mismatch. Expected ${teacher.passcode}, got ${passcode}`;
         return;
     }
 
@@ -160,7 +175,6 @@ async function enterTeacherDashboard() {
 
     showScreen("teacher-dashboard-screen");
 }
-
 async function openQuestScreen() {
     await renderQuestList();
     clearSelectedQuestDisplay();
