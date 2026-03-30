@@ -1158,9 +1158,72 @@ function updateHubUI() {
 // =========================
 // OPTIONAL STUBS
 // =========================
-function buyBasicPack() {}
-function openPack() {}
-function revealCards() {}
+function buyBasicPack() {
+    if (!currentStudent) return;
+
+    if (currentStudent.knowledge < BASIC_PACK_COST) {
+        getEl("pack-message").textContent = "Not enough Knowledge!";
+        return;
+    }
+
+    currentStudent.knowledge -= BASIC_PACK_COST;
+    currentStudent.packs.basic += 1;
+
+    updateHubUI();
+    saveStudentData();
+
+    getEl("pack-message").textContent = "Bought 1 Basic Pack!";
+}
+function openPack() {
+    if (!currentStudent) return;
+
+    if (currentStudent.packs.basic <= 0) {
+        getEl("pack-message").textContent = "No packs available!";
+        return;
+    }
+
+    currentStudent.packs.basic -= 1;
+    updateHubUI();
+    saveStudentData();
+
+    showScreen("pack-screen");
+}
+function revealCards() {
+    if (!currentStudent) return;
+
+    const results = getEl("card-results");
+    results.innerHTML = "";
+
+    const pack = PACKS.basic;
+
+    for (let i = 0; i < pack.cardsPerPack; i++) {
+        const rarity = rollRarity(pack.odds);
+
+        const possibleCards = CARDS.filter(c => c.rarity === rarity);
+        const card = possibleCards[Math.floor(Math.random() * possibleCards.length)];
+
+        if (!currentStudent.ownedCards.includes(card.id)) {
+            currentStudent.ownedCards.push(card.id);
+        }
+
+        const div = document.createElement("div");
+        div.textContent = `${card.name} (${card.rarity})`;
+        results.appendChild(div);
+    }
+
+    saveStudentData();
+}
+function rollRarity(odds) {
+    const roll = Math.random() * 100;
+    let cumulative = 0;
+
+    for (let rarity in odds) {
+        cumulative += odds[rarity];
+        if (roll <= cumulative) return rarity;
+    }
+
+    return "Common";
+}
 function openCollection() {}
 function openProfile() {}
 function addTestPack() {}
