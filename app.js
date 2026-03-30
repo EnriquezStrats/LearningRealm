@@ -1302,17 +1302,19 @@ function openCollection() {
 
         if (owned) {
             slot.innerHTML = `
-                <div>
-                    <strong>${card.name}</strong><br>
-                    <small>${card.rarity}</small><br>
-                    <small>${card.id}</small>
+                <img src="${card.image}" alt="${card.name}" class="collection-card-image">
+                <div class="collection-card-info">
+                    <div class="collection-card-name">${card.name}</div>
+                    <div class="collection-card-rarity">${card.rarity}</div>
+                    <div class="collection-card-id">${card.id}</div>
                 </div>
             `;
         } else {
             slot.innerHTML = `
-                <div>
-                    <strong>???</strong><br>
-                    <small>Not Collected</small>
+                <div class="collection-card-missing">?</div>
+                <div class="collection-card-info">
+                    <div class="collection-card-name">???</div>
+                    <div class="collection-card-rarity">Not Collected</div>
                 </div>
             `;
         }
