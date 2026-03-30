@@ -111,10 +111,19 @@ async function enterWorld() {
     showScreen("hub-screen");
 }
 
-function studentLogout() {
+async function studentLogout() {
     currentStudent = null;
     selectedQuestId = null;
+
     getEl("login-error").textContent = "";
+    getEl("classCode").value = "";
+    getEl("studentName").value = "";
+
+    const passwordEl = getEl("studentPassword");
+    if (passwordEl) {
+        passwordEl.value = "";
+    }
+
     showScreen("login-screen");
 }
 
