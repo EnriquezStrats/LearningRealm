@@ -6,5 +6,9 @@ const CLASS_TEACHERS = {
     "DEV-TEST": {
         teacherName: "HENRYA",
         passcode: "4729"
+    },
+    "7P-LRNSTR": {
+        teacherName: "HENRYA",
+        passcode: "4729"
     }
 };
